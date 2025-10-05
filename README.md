@@ -61,36 +61,17 @@ The build process:
 4. Links everything into WebAssembly
 5. Copies output to `docs/`
 
-### Download Model
+### Model
 
-**For Local Development:**
-
-Download the quantized Qwen2.5-0.5B model to `docs/`:
-
-```bash
-cd docs
-wget https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf
-```
-
-**For GitHub Pages Deployment:**
-
-Due to GitHub Pages' LFS limitations, the app will automatically download the model from:
-1. GitHub Releases (if available) - recommended for your own fork
-2. Hugging Face (fallback) - works out of the box
-
-To create a GitHub Release with the model:
-```bash
-# Create a release and upload the model file
-gh release create v1.0.0 docs/qwen2.5-0.5b-instruct-q4_k_m.gguf \
-  --title "Qwen2.5-0.5B Model v1.0.0" \
-  --notes "Qwen2.5-0.5B-Instruct Q4_K_M quantized model"
-```
+The app automatically downloads the Qwen2.5-0.5B model from Hugging Face when you click "LOAD MODEL".
 
 **Model Details:**  
-**Model**: [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) by Alibaba Cloud  
-**Format**: GGUF (Q4_K_M quantization)  
-**Size**: ~469MB (0.5B parameters)  
-**Speed**: Fast inference with 4-thread CPU or WebGPU
+- **Model**: [Qwen2.5-0.5B-Instruct-GGUF](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF) by Alibaba Cloud
+- **Format**: GGUF (Q4_K_M quantization)
+- **Size**: ~469MB (will be cached in browser after first download)
+- **Speed**: Fast inference with 4-thread CPU or WebGPU
+
+No manual download required! The model is fetched directly from Hugging Face on first use.
 
 ### Serve
 
@@ -103,24 +84,22 @@ make serve
 
 ## Usage
 
-### Local Development
-
-1. **Start the Server**: Run `make serve` 
-2. **Open Browser**: Navigate to http://localhost:8000
-3. **Load Model**: Click "LOAD MODEL" button (loads Qwen2.5-0.5B automatically)
-4. **Start Chatting**: Type your message and press SEND or Enter
+1. **Start the Server**: Run `make serve` (or deploy to GitHub Pages)
+2. **Open Browser**: Navigate to http://localhost:8000 (or your GitHub Pages URL)
+3. **Load Model**: Click "LOAD MODEL" - downloads automatically from Hugging Face (~469MB, one-time)
+4. **Start Chatting**: Type your message and press Enter or click SEND
 5. **Clear Chat**: Click CLEAR CHAT button to reset conversation
 
 ### GitHub Pages Deployment
 
-The app is designed to work on GitHub Pages with multi-threading support:
+The app works out of the box on GitHub Pages with multi-threading support:
 
-1. **Enable GitHub Pages**: Go to Settings → Pages → Source: `main` branch, `/docs` folder
+1. **Enable GitHub Pages**: Settings → Pages → Source: `main` branch, `/docs` folder
 2. **Wait for Deployment**: Check Actions tab for deployment status
 3. **Access**: Visit `https://<username>.github.io/<repo-name>/`
-4. **Load Model**: Click "LOAD MODEL" - will auto-download from Hugging Face
+4. **Load Model**: Click "LOAD MODEL" - auto-downloads from Hugging Face (first time only)
 
-**Note**: The service worker (`coi-serviceworker.min.js`) enables SharedArrayBuffer for multi-threading on GitHub Pages without custom headers.
+**Note**: The service worker (`coi-serviceworker.min.js`) enables SharedArrayBuffer for multi-threading on GitHub Pages.
 
 ### Keyboard Shortcuts
 
