@@ -1,0 +1,19 @@
+# Build artifacts
+docs/index.html
+docs/index.js
+docs/index.wasm
+
+# Podman/Docker
+.buildah-*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
