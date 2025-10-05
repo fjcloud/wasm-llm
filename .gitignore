@@ -3,6 +3,9 @@ docs/index.html
 docs/index.js
 docs/index.wasm
 
+# Model files (downloaded from Hugging Face)
+*.gguf
+
 # Podman/Docker
 .buildah-*
 
