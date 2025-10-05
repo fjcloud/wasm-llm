@@ -141,7 +141,17 @@
         
         // Model loading functions
         window.loadLocalModel = function() {
-            console.log("Loading Qwen2.5-0.5B from docs/...");
+            // Try multiple sources for the model file
+            var modelSources = [
+                // First try: local file (for development)
+                'qwen2.5-0.5b-instruct-q4_k_m.gguf',
+                // Second try: GitHub Releases (for GitHub Pages)
+                'https://github.com/fjcloud/wasm-llm/releases/download/v1.0.0/qwen2.5-0.5b-instruct-q4_k_m.gguf',
+                // Third try: Hugging Face mirror
+                'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf'
+            ];
+            
+            console.log("Loading Qwen2.5-0.5B model...");
             
             // Show loading message in chat
             try {
@@ -150,23 +160,48 @@
                 console.log("Could not show loading message:", e);
             }
             
-            fetch('qwen2.5-0.5b-instruct-q4_k_m.gguf').then(function(response) {
-                if (!response.ok) throw new Error('Model not found');
-                return response.arrayBuffer();
-            }).then(function(buffer) {
-                console.log("Model downloaded, mounting to filesystem...");
-                try {
-                    Module.FS.writeFile("/models/model.gguf", new Uint8Array(buffer));
-                    console.log("Model mounted successfully");
-                    Module.ccall("loadModelFromFS", "void", [], []);
-                } catch(err) {
-                    console.error("Failed to mount model:", err);
-                    alert("Failed to load model. See console for details.");
+            function tryLoadModel(sourceIndex) {
+                if (sourceIndex >= modelSources.length) {
+                    alert("Failed to load model from all sources. Please check console for details.");
+                    return;
                 }
-            }).catch(function(err) {
-                console.error("Failed to load local model:", err);
-                alert("Qwen2.5 model not found. Make sure qwen2.5-0.5b-instruct-q4_k_m.gguf is in docs/");
-            });
+                
+                var source = modelSources[sourceIndex];
+                console.log("Trying source " + (sourceIndex + 1) + ": " + source);
+                
+                fetch(source).then(function(response) {
+                    if (!response.ok) throw new Error('Model not found at source ' + (sourceIndex + 1));
+                    var contentLength = response.headers.get('content-length');
+                    if (contentLength) {
+                        console.log("Downloading model: " + Math.round(contentLength / 1024 / 1024) + " MB");
+                    }
+                    return response.arrayBuffer();
+                }).then(function(buffer) {
+                    console.log("Model downloaded (" + Math.round(buffer.byteLength / 1024 / 1024) + " MB), mounting to filesystem...");
+                    
+                    // Verify it's a valid GGUF file
+                    var magic = new Uint8Array(buffer, 0, 4);
+                    var magicStr = String.fromCharCode.apply(null, magic);
+                    if (magicStr !== 'GGUF') {
+                        throw new Error('Invalid model file (not a GGUF file). Got magic: ' + magicStr);
+                    }
+                    
+                    try {
+                        Module.FS.writeFile("/models/model.gguf", new Uint8Array(buffer));
+                        console.log("Model mounted successfully");
+                        Module.ccall("loadModelFromFS", "void", [], []);
+                    } catch(err) {
+                        console.error("Failed to mount model:", err);
+                        alert("Failed to load model. See console for details.");
+                    }
+                }).catch(function(err) {
+                    console.error("Failed to load from source " + (sourceIndex + 1) + ":", err);
+                    // Try next source
+                    tryLoadModel(sourceIndex + 1);
+                });
+            }
+            
+            tryLoadModel(0);
         };
         
         // Model upload handler

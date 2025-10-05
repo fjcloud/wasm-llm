@@ -63,20 +63,34 @@ The build process:
 
 ### Download Model
 
-Download the quantized Qwen2.5-0.5B model:
+**For Local Development:**
+
+Download the quantized Qwen2.5-0.5B model to `docs/`:
 
 ```bash
-# From Hugging Face (requires git-lfs)
 cd docs
 wget https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf
-
-# Or download manually and place in docs/
 ```
 
+**For GitHub Pages Deployment:**
+
+Due to GitHub Pages' LFS limitations, the app will automatically download the model from:
+1. GitHub Releases (if available) - recommended for your own fork
+2. Hugging Face (fallback) - works out of the box
+
+To create a GitHub Release with the model:
+```bash
+# Create a release and upload the model file
+gh release create v1.0.0 docs/qwen2.5-0.5b-instruct-q4_k_m.gguf \
+  --title "Qwen2.5-0.5B Model v1.0.0" \
+  --notes "Qwen2.5-0.5B-Instruct Q4_K_M quantized model"
+```
+
+**Model Details:**  
 **Model**: [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) by Alibaba Cloud  
 **Format**: GGUF (Q4_K_M quantization)  
-**Size**: ~330MB (0.5B parameters)  
-**Speed**: Very fast inference on CPU/WebGPU
+**Size**: ~469MB (0.5B parameters)  
+**Speed**: Fast inference with 4-thread CPU or WebGPU
 
 ### Serve
 
@@ -89,16 +103,29 @@ make serve
 
 ## Usage
 
+### Local Development
+
 1. **Start the Server**: Run `make serve` 
 2. **Open Browser**: Navigate to http://localhost:8000
 3. **Load Model**: Click "LOAD MODEL" button (loads Qwen2.5-0.5B automatically)
 4. **Start Chatting**: Type your message and press SEND or Enter
 5. **Clear Chat**: Click CLEAR CHAT button to reset conversation
 
+### GitHub Pages Deployment
+
+The app is designed to work on GitHub Pages with multi-threading support:
+
+1. **Enable GitHub Pages**: Go to Settings → Pages → Source: `main` branch, `/docs` folder
+2. **Wait for Deployment**: Check Actions tab for deployment status
+3. **Access**: Visit `https://<username>.github.io/<repo-name>/`
+4. **Load Model**: Click "LOAD MODEL" - will auto-download from Hugging Face
+
+**Note**: The service worker (`coi-serviceworker.min.js`) enables SharedArrayBuffer for multi-threading on GitHub Pages without custom headers.
+
 ### Keyboard Shortcuts
 
 - `Enter` - Send message
-- `Shift+Enter` - New line in input
+- `Ctrl+Enter` - New line in input
 
 ## Integrating llama.cpp
 
