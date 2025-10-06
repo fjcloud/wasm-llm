@@ -12,7 +12,7 @@
 } while(0)
 
 LLM::LLM() : model(nullptr), ctx(nullptr), sampler(nullptr), loaded(false), generating(false), 
-             usingGPU(false), modelInfo("No model loaded"), tokensGenerated(0), maxTokens(100),
+             usingGPU(false), modelInfo("No model loaded"), tokensGenerated(0), maxTokens(512),
              promptProcessed(false) {
     // Initialize llama backend
     llama_backend_init();
@@ -266,16 +266,6 @@ bool LLM::stepGeneration() {
     // Send token to UI immediately
     if (onTokenCallback) {
         onTokenCallback(piece);
-    }
-    
-    // Stop at sentence endings for cleaner responses
-    if ((piece.find('.') != std::string::npos || 
-         piece.find('!') != std::string::npos || 
-         piece.find('?') != std::string::npos) && 
-        currentResponse.length() > 20) {
-        LOG_INFO("Sentence ending detected, stopping");
-        generating = false;
-        return false;
     }
     
     // Prepare for next iteration
