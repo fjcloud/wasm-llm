@@ -1,4 +1,4 @@
-# Build artifacts
+# Build artifacts (preserve CNAME and coi-serviceworker.min.js)
 docs/index.html
 docs/index.js
 docs/index.wasm

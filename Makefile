@@ -15,9 +15,9 @@ build:
 
 clean:
 	@echo "Cleaning up..."
-	rm -rf docs/*
+	rm -f docs/index.html docs/index.js docs/index.wasm
 	-podman rmi $(IMAGE_NAME):latest 2>/dev/null || true
-	@echo "Cleanup complete."
+	@echo "Cleanup complete (preserved CNAME and coi-serviceworker.min.js)."
 
 serve:
 	@cd docs && python3 ../serve.py
